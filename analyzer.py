@@ -8,7 +8,7 @@ def generador_lineas(ruta_archivo):
                 yield linea
     except FileNotFoundError:
         print("El archivo no existe.")
-        yield ""
+        yield 
 
 @registrar_accion
 def analizar_contenido(ruta_archivo, buscar_emails=True):
