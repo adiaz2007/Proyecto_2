@@ -1,83 +1,61 @@
 import os
 import shutil
-import time
-from datetime import datetime
+# Intentamos importar utils, si falla no pasa nada
+try:
+    from utils import registrar_accion
+except ImportError:
+    def registrar_accion(func): return func
 
+@registrar_accion
+def organizar_archivos(ruta_origen, criterio, simulacion=False):
 
-def organizar_archivos(ruta_directorio, criterio, es_simulacion):
+    if not os.path.exists(ruta_origen):
+        print("La ruta no existe en el sistema.")
+        return 0
 
-    if not os.path.exists(ruta_directorio):
-        print(f"Oye, la ruta '{ruta_directorio}' no existe. Revisa bien.")
-        return
+    # Listar archivos
+    todos_archivos = os.listdir(ruta_origen)
+    archivos = [f for f in todos_archivos if os.path.isfile(os.path.join(ruta_origen, f))]
+   
+    if len(archivos) == 0:
+        print("No encontré archivos (solo carpetas o nada).")
 
-    try:
-        lista_archivos = os.listdir(ruta_directorio)
-    except Exception as error:
-        print(f"No pude leer la carpeta. Error: {error}")
-        return
+    contador = 0
 
-    archivos_movidos = 0
+    for archivo in archivos:
+        ruta_completa = os.path.join(ruta_origen, archivo)
+        nombre_carpeta = "Varios"
 
-    print(f"\n--- Arrancando organización por: {criterio} ---")
-
-    for archivo in lista_archivos:
-
-        ruta_completa = os.path.join(ruta_directorio, archivo)
-
-        if os.path.isdir(ruta_completa):
-            continue
-
-        if archivo == "main.py" or archivo.startswith("."):
-            continue
-
-        nombre_carpeta = "Otros"
-
-        try:
-            if criterio == "extension":
-                parte_nombre, parte_extension = os.path.splitext(archivo)
-
-                if parte_extension:
-                    nombre_carpeta = parte_extension[1:].upper()
-                else:
-                    nombre_carpeta = "Sin_Extension"
-
-            elif criterio == "tamano":
-                tamano_bytes = os.path.getsize(ruta_completa)
-                if tamano_bytes < 1_048_576:
-                    nombre_carpeta = "Pequeños"
-                elif tamano_bytes < 104_857_600:
-                    nombre_carpeta = "Medianos"
-                else:
-                    nombre_carpeta = "Grandes"
-
-            elif criterio == "fecha":
-                tiempo_raro = os.path.getmtime(ruta_completa)
-                fecha_real = datetime.fromtimestamp(tiempo_raro)
-                nombre_carpeta = fecha_real.strftime("%Y-%m")
-
-            ruta_carpeta_destino = os.path.join(ruta_directorio, nombre_carpeta)
-            ruta_final = os.path.join(ruta_carpeta_destino, archivo)
-
-            if es_simulacion == True:
-                print(
-                    f"[SIMULACIÓN] Movería '{archivo}' a la carpeta '{nombre_carpeta}'"
-                )
-                archivos_movidos += 1
-
+        # Lógica de clasificación
+        if criterio == "1": # Por Extensión
+            ext = archivo.split('.')[-1].upper()
+            if len(ext) > 0 and len(ext) < 6:
+                nombre_carpeta = ext
             else:
-                os.makedirs(ruta_carpeta_destino, exist_ok=True)
+                nombre_carpeta = "OTROS"
+            
+        elif criterio == "2": # Por Tamaño
+            tamano_mb = os.path.getsize(ruta_completa) / (1024 * 1024)
+            if tamano_mb < 1:
+                nombre_carpeta = "Pequeños"
+            elif tamano_mb < 50:
+                nombre_carpeta = "Medianos"
+            else:
+                nombre_carpeta = "Grandes"
 
-                if not os.path.exists(ruta_final):
-                    shutil.move(ruta_completa, ruta_final)
-                    print(f"[LISTO] Moví '{archivo}' a '{nombre_carpeta}'")
-                    archivos_movidos += 1
-                else:
-                    print(
-                        f"[CUIDADO] El archivo '{archivo}' ya existe en destino. Lo salté."
-                    )
+        
+        if simulacion:
 
-        except Exception as e:
-            print(f"Ups, error con '{archivo}': {e}")
+            print(f"[SIMULACIÓN] Movería '{archivo}' a carpeta '{nombre_carpeta}'")
+        else:
+            carpeta_destino = os.path.join(ruta_origen, nombre_carpeta)
+            if not os.path.exists(carpeta_destino):
+                os.makedirs(carpeta_destino)
+            try:
+                shutil.move(ruta_completa, os.path.join(carpeta_destino, archivo))
+                print(f"[OK] Movido: {archivo} -> {nombre_carpeta}")
+                contador += 1
+            except Exception as e:
+                print(f"[ERROR] {e}")
 
-    print(f"\nProceso terminado. Archivos procesados: {archivos_movidos}")
-    return archivos_movidos
+    return contador
