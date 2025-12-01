@@ -1,29 +1,83 @@
+import sys
 import os
-from organizer import organizar_archivos
+
+# --- BLOQUE DE IMPORTACIÓN SEGURO ---
+# Esto ayuda a detectar si te falta algún archivo antes de arrancar
+try:
+    import utils
+    import organizer
+    import analyzer
+    import auditor
+except ImportError as e:
+    print("Error Crítico: Faltan archivos del proyecto.")
+    print(f"No se pudo cargar: {e.name}.py")
+    print("Asegúrate de que utils.py, organizer.py, analyzer.py y auditor.py estén en la misma carpeta.")
+    sys.exit()
+
+def mostrar_menu():
+    print("\n" + "="*40)
+    print("       SISTEMA GESTOR DE ARCHIVOS")
+    print("="*40)
+    print("1. [Organizador] Mover archivos por tipo/tamaño")
+    print("2. [Analizador]  Buscar emails en un archivo")
+    print("3. [Auditor]     Detectar cambios en una carpeta")
+    print("4. Salir")
+    print("-" * 40)
 
 def main():
-    print("Bienvenido al organizador de archivos")
+    while True:
+        mostrar_menu()
+        opcion = input(">> Seleccione una opción (1-4): ").strip()
 
-    ruta_directorio = input("Por favor, ingresa la ruta del directorio a organizar: ")
-    
-    print("\nCriterios disponibles:")
-    print("1. extension (Organizar por extensión de archivo)")
-    print("2. tamano (Organizar por tamaño de archivo)")
-    print("3. fecha (Organizar por fecha de modificación)")
-    
-    criterio = input("\nSelecciona un criterio (escribe 'extension', 'tamano' o 'fecha'): ")
+        # --- OPCIÓN 1: ORGANIZAR ---
+        if opcion == "1":
+            ruta = input("Ingrese la ruta de la carpeta a organizar: ").strip()
+            
+            # Usamos la función de utils para validar
+            if utils.validar_ruta(ruta):
+                print("\nSeleccione criterio de organización:")
+                print("   1. Por Extensión (PDF, JPG, etc.)")
+                print("   2. Por Tamaño (Pequeños, Grandes)")
+                criterio = input("   >> Opción (1 o 2): ").strip()
+                
+                # Preguntar por simulación
+                sim_input = input("   >> ¿Modo Simulación (solo ver)? (S/N): ").strip().lower()
+                es_simulacion = (sim_input == 's')
+                
+                # Llamada al módulo organizer
+                organizer.organizar_archivos(ruta, criterio, es_simulacion)
+            else:
+                print(f"[!] La ruta '{ruta}' no existe o no es una carpeta.")
 
-    if criterio not in ['extension', 'tamano', 'fecha']:
-        print("Criterio no válido. Por favor, intenta de nuevo.")
-        return
+        # --- OPCIÓN 2: ANALIZAR ---
+        elif opcion == "2":
+            ruta_archivo = input("Ingrese la ruta del archivo (.txt, .log): ").strip()
+            
+            if os.path.isfile(ruta_archivo):
+                # Llamada al módulo analyzer
+                analyzer.analizar_contenido(ruta_archivo)
+            else:
+                print(f"[!] El archivo '{ruta_archivo}' no existe.")
 
-    simulacion = input("\n¿Quieres hacer una simulación? (s/n): ").lower()
-    es_simulacion = simulacion == 's'
+        # --- OPCIÓN 3: AUDITAR ---
+        elif opcion == "3":
+            ruta = input("Ingrese la ruta de la carpeta a auditar: ").strip()
+            
+            if utils.validar_ruta(ruta):
+                # Llamada al módulo auditor
+                auditor.auditar_cambios(ruta)
+            else:
+                print(f"[!] La ruta '{ruta}' no existe.")
 
-    archivos_movidos = organizar_archivos(ruta_directorio, criterio, es_simulacion)
-
-    if archivos_movidos is not None:
-        print(f"\n¡Organización completada! Total de archivos procesados: {archivos_movidos}")
+        # --- OPCIÓN 4: SALIR ---
+        elif opcion == "4":
+            print("Cerrando sistema... ¡Hasta luego!")
+            break
+        
+        else:
+            print("[!] Opción no válida. Intente de nuevo.")
 
 if __name__ == "__main__":
+    # Limpiar pantalla al iniciar (Opcional, funciona en Windows)
+    os.system('cls' if os.name == 'nt' else 'clear')
     main()
