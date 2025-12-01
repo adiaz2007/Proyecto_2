@@ -1,8 +1,7 @@
 import sys
 import os
 
-# --- BLOQUE DE IMPORTACIÓN SEGURO ---
-# Esto ayuda a detectar si te falta algún archivo antes de arrancar
+
 try:
     import utils
     import organizer
