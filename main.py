@@ -1,6 +1,6 @@
 import sys
 import os
-
+import time
 
 try:
     import utils
@@ -12,6 +12,13 @@ except ImportError as e:
     print(f"No se pudo cargar: {e.name}.py")
     print("Asegúrate de que utils.py, organizer.py, analyzer.py y auditor.py estén en la misma carpeta.")
     sys.exit()
+
+def limpiar_pantalla():
+    """Limpia la consola según el sistema operativo."""
+    if os.name == 'nt': # Windows
+        os.system('cls')
+    else: # Mac / Linux
+        os.system('clear')
 
 def mostrar_menu():
     print("\n" + "="*40)
@@ -25,11 +32,16 @@ def mostrar_menu():
 
 def main():
     while True:
+        limpiar_pantalla()
         mostrar_menu()
         opcion = input(">> Seleccione una opción (1-4): ").strip()
 
         # --- OPCIÓN 1: ORGANIZAR ---
         if opcion == "1":
+            limpiar_pantalla() 
+            print("="*30)
+            print("   MODULO DE ORGANIZACIÓN")
+            print("="*30)
             ruta = input("Ingrese la ruta de la carpeta a organizar: ").strip()
             
             # Usamos la función de utils para validar
@@ -50,6 +62,11 @@ def main():
 
         # --- OPCIÓN 2: ANALIZAR ---
         elif opcion == "2":
+            limpiar_pantalla() 
+            print("="*30)
+            print("   MODULO DE ORGANIZACIÓN")
+            print("="*30)
+
             ruta_archivo = input("Ingrese la ruta del archivo (.txt, .log): ").strip()
             
             if os.path.isfile(ruta_archivo):
@@ -60,6 +77,11 @@ def main():
 
         # --- OPCIÓN 3: AUDITAR ---
         elif opcion == "3":
+            limpiar_pantalla() 
+            print("="*30)
+            print("   MODULO DE ORGANIZACIÓN")
+            print("="*30)
+
             ruta = input("Ingrese la ruta de la carpeta a auditar: ").strip()
             
             if utils.validar_ruta(ruta):
@@ -74,9 +96,12 @@ def main():
             break
         
         else:
-            print("[!] Opción no válida. Intente de nuevo.")
+            print("\n[!] Opción no válida.")
+            time.sleep(1) 
+            continue
+
+        print("\n" + "-"*40)
+        input("Presione [ENTER] para volver al menú principal...")
 
 if __name__ == "__main__":
-    # Limpiar pantalla al iniciar (Opcional, funciona en Windows)
-    os.system('cls' if os.name == 'nt' else 'clear')
     main()
