@@ -1,32 +1,64 @@
 import os
+import csv
 import datetime
 
-def generar_reporte_organizacion(ruta_directorio, archivos_movidos):
-    """
-    Genera un reporte sobre la organización de archivos.
-    """
-    nombre_reporte = os.path.join(ruta_directorio, "reporte_organizacion.txt")
-    
-    with open(nombre_reporte, "w", encoding="utf-8") as f:
-        f.write(f"Reporte de Organización - {datetime.datetime.now()}\n")
-        f.write(f"Archivos movidos: {archivos_movidos}\n")
-        f.write("\n--- Fin del reporte ---\n")
-    
-    print(f"[INFO] Reporte generado: {nombre_reporte}")
+# Intentamos importar el decorador
+try:
+    from utils import registrar_accion
+except ImportError:
+    def registrar_accion(f): return f
 
-def generar_reporte_analisis(ruta_archivo, resultados):
+@registrar_accion
+def generar_reporte_csv(ruta_carpeta):
     """
-    Genera un reporte sobre el análisis de contenido.
+    Genera un archivo 'inventario.csv' con los datos de la carpeta.
     """
-    nombre_reporte = f"reporte_analisis_{os.path.basename(ruta_archivo)}.txt"
+    print(f"\n--- GENERANDO REPORTE DE: {ruta_carpeta} ---")
     
-    with open(nombre_reporte, "w", encoding="utf-8") as f:
-        f.write(f"Reporte de Análisis - {datetime.datetime.now()}\n")
-        f.write(f"Archivo analizado: {ruta_archivo}\n")
-        f.write(f"Total de coincidencias: {len(resultados)}\n\n")
-        f.write("Detalles:\n")
-        for linea in resultados:
-            f.write(f"{linea}\n")
-        f.write("\n--- Fin del reporte ---\n")
-    
-    print(f"[INFO] Reporte generado: {nombre_reporte}")
+    if not os.path.exists(ruta_carpeta):
+        print(f"[ERROR] La ruta '{ruta_carpeta}' no existe.")
+        return
+
+    nombre_reporte = "inventario_archivos.csv"
+    archivos_encontrados = []
+
+    # 1. Recopilar datos
+    try:
+        contenido = os.listdir(ruta_carpeta)
+        for nombre in contenido:
+            ruta_completa = os.path.join(ruta_carpeta, nombre)
+            
+            if os.path.isfile(ruta_completa):
+                # Obtener datos reales del sistema
+                tamano_bytes = os.path.getsize(ruta_completa)
+                tamano_kb = round(tamano_bytes / 1024, 2)
+                timestamp = os.path.getmtime(ruta_completa)
+                fecha = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                extension = nombre.split('.')[-1] if '.' in nombre else "SIN EXT"
+
+                archivos_encontrados.append([nombre, extension, f"{tamano_kb} KB", fecha])
+                
+    except Exception as e:
+        print(f"[ERROR] Al leer archivos: {e}")
+        return
+
+    # 2. Escribir CSV
+    if archivos_encontrados:
+        try:
+            # encoding='utf-8-sig' es para que Excel abra bien las tildes/ñ
+            with open(nombre_reporte, 'w', newline='', encoding='utf-8-sig') as csvfile:
+                writer = csv.writer(csvfile, delimiter=';') # Usamos ; para que Excel lo separe bien
+                
+                # Encabezados
+                writer.writerow(["NOMBRE DEL ARCHIVO", "EXTENSIÓN", "TAMAÑO", "FECHA MODIFICACIÓN"])
+                
+                # Datos
+                writer.writerows(archivos_encontrados)
+                
+            print(f"[ÉXITO] Reporte guardado como: '{nombre_reporte}'")
+            print(f">> Se listaron {len(archivos_encontrados)} archivos.")
+            
+        except Exception as e:
+            print(f"[ERROR] No se pudo crear el archivo CSV: {e}")
+    else:
+        print("[AVISO] La carpeta está vacía, no se generó reporte.")
