@@ -7,6 +7,7 @@ try:
     import organizer
     import analyzer
     import auditor
+    import reports
 except ImportError as e:
     print("Error Crítico: Faltan archivos del proyecto.")
     print(f"No se pudo cargar: {e.name}.py")
@@ -27,14 +28,15 @@ def mostrar_menu():
     print("1. [Organizador] Mover archivos por tipo/tamaño")
     print("2. [Analizador]  Buscar emails en un archivo")
     print("3. [Auditor]     Detectar cambios en una carpeta")
-    print("4. Salir")
+    print("4. [Reportes]    Generar Inventario CSV")
+    print("5. Salir")
     print("-" * 40)
 
 def main():
     while True:
         limpiar_pantalla()
         mostrar_menu()
-        opcion = input(">> Seleccione una opción (1-4): ").strip()
+        opcion = input(">> Seleccione una opción (1-5): ").strip()
 
         # --- OPCIÓN 1: ORGANIZAR ---
         if opcion == "1":
@@ -90,8 +92,20 @@ def main():
             else:
                 print(f"[!] La ruta '{ruta}' no existe.")
 
-        # --- OPCIÓN 4: SALIR ---
+        # --- OPCIÓN 4:   REPORTES ---       
         elif opcion == "4":
+            limpiar_pantalla()
+            print("=== MODULO DE REPORTES ===")
+            print("Generando inventario en Excel (.csv)...")
+            ruta = input("Ingrese la ruta de la carpeta a reportar: ").strip()
+            
+            if utils.validar_ruta(ruta):
+                reports.generar_reporte_csv(ruta)
+            else:
+                print(f"\n[!] Error: Ruta inválida.")
+
+        # --- OPCIÓN 5: SALIR ---
+        elif opcion == "5":
             print("Cerrando sistema... ¡Hasta luego!")
             break
         
