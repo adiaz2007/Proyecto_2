@@ -64,18 +64,20 @@ def main():
 
         # --- OPCIÓN 2: ANALIZAR ---
         elif opcion == "2":
-            limpiar_pantalla() 
-            print("="*30)
-            print("   MODULO DE ORGANIZACIÓN")
-            print("="*30)
-
-            ruta_archivo = input("Ingrese la ruta del archivo (.txt, .log): ").strip()
+            limpiar_pantalla()
+            print("=== MODULO DE ANÁLISIS ===")
             
+            
+            # LEER INPUT
+            ruta_raw = input("Ingrese ruta completa del archivo (.txt, .log): ").strip()
+            ruta_archivo = ruta_raw.replace('"', '').replace("'", "")
+            
+            # Verificamos si existe usando la ruta absoluta
             if os.path.isfile(ruta_archivo):
-                # Llamada al módulo analyzer
                 analyzer.analizar_contenido(ruta_archivo)
             else:
-                print(f"[!] El archivo '{ruta_archivo}' no existe.")
+                print(f"\n[!] Error: No se encuentra el archivo.")
+                print(f"    Ruta buscada: {ruta_archivo}")
 
         # --- OPCIÓN 3: AUDITAR ---
         elif opcion == "3":

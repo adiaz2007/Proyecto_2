@@ -1,0 +1,8 @@
+
+LISTA DE CONTACTOS:
+1. Valido: contacto@sitio.org
+2. Invalido (falta arroba): usuario.sitio.com
+3. Invalido (falta dominio): usuario@
+4. Invalido (espacios): usuario @ sitio.com
+5. Valido complejo: nombre.apellido+filtro@universidad.edu.pe
+6. Solo arroba: @twitter
