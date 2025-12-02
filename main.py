@@ -32,6 +32,13 @@ def mostrar_menu():
     print("5. Salir")
     print("-" * 40)
 
+def solicitar_ruta(mensaje):
+
+    ruta_cruda = input(mensaje).strip()
+    # Elimina comillas dobles y simples que Windows agrega al arrastrar
+    ruta_limpia = ruta_cruda.replace('"', '').replace("'", "")
+    return ruta_limpia
+
 def main():
     while True:
         limpiar_pantalla()
@@ -44,7 +51,7 @@ def main():
             print("="*30)
             print("   MODULO DE ORGANIZACIÓN")
             print("="*30)
-            ruta = input("Ingrese la ruta de la carpeta a organizar: ").strip()
+            ruta = solicitar_ruta("Ingrese la ruta de la carpeta a organizar: ").strip()
             
             # Usamos la función de utils para validar
             if utils.validar_ruta(ruta):
@@ -68,10 +75,8 @@ def main():
             print("=== MODULO DE ANÁLISIS ===")
             
             
-            # LEER INPUT
-            ruta_raw = input("Ingrese ruta completa del archivo (.txt, .log): ").strip()
-            ruta_archivo = ruta_raw.replace('"', '').replace("'", "")
-            
+            ruta_archivo = solicitar_ruta("Ingrese ruta del archivo (.txt): ")
+
             # Verificamos si existe usando la ruta absoluta
             if os.path.isfile(ruta_archivo):
                 analyzer.analizar_contenido(ruta_archivo)
@@ -86,7 +91,7 @@ def main():
             print("   MODULO DE ORGANIZACIÓN")
             print("="*30)
 
-            ruta = input("Ingrese la ruta de la carpeta a auditar: ").strip()
+            ruta = solicitar_ruta("Ingrese la ruta de la carpeta a auditar: ").strip()
             
             if utils.validar_ruta(ruta):
                 # Llamada al módulo auditor
@@ -99,7 +104,7 @@ def main():
             limpiar_pantalla()
             print("=== MODULO DE REPORTES ===")
             print("Generando inventario en Excel (.csv)...")
-            ruta = input("Ingrese la ruta de la carpeta a reportar: ").strip()
+            ruta = solicitar_ruta("Ingrese la ruta de la carpeta a reportar: ").strip()
             
             if utils.validar_ruta(ruta):
                 reports.generar_reporte_csv(ruta)
