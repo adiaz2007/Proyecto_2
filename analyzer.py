@@ -38,4 +38,3 @@ def analizar_contenido(ruta_archivo, buscar_emails=True):
         print("No se encontraron coincidencias.")
         
     return resultados
-
