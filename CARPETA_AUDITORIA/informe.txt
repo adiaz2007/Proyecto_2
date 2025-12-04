@@ -1,2 +1,3 @@
-Versión 1: Todo normal.
-Versión 2: CAMBIO DETECTADO.
+Version 1: Todo normal.
+Version 2: CAMBIO DETECTADO.
+Version 3: CAMBIO
